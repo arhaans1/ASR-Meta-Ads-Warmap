@@ -503,7 +503,7 @@ export default function WarmapPreview({ data }) {
                   {Math.round(metrics.volumes[1] || 0).toLocaleString()}
                 </td>
                 <td className="p-3 text-center">
-                  {formatIndianNumber(Math.round(metrics.cpasAtCurrentCPA[0] || 0))}
+                  {formatIndianNumber(Math.round(monthlySpend / (metrics.volumes[1] || 1)))}
                 </td>
               </tr>
 
@@ -521,7 +521,7 @@ export default function WarmapPreview({ data }) {
                     {Math.round(metrics.volumes[2] || 0).toLocaleString()}
                   </td>
                   <td className="p-3 text-center">
-                    {formatIndianNumber(Math.round(metrics.cpasAtCurrentCPA[1] || 0))}
+                    {formatIndianNumber(Math.round(monthlySpend / (metrics.volumes[2] || 1)))}
                   </td>
                 </tr>
               )}
@@ -540,7 +540,7 @@ export default function WarmapPreview({ data }) {
                     {Math.round(metrics.volumes[data.stage3_enabled ? 3 : 2] || 0).toLocaleString()}
                   </td>
                   <td className="p-3 text-center">
-                    {formatIndianNumber(Math.round(metrics.cpasAtCurrentCPA[data.stage3_enabled ? 2 : 1] || 0))}
+                    {formatIndianNumber(Math.round(monthlySpend / (metrics.volumes[data.stage3_enabled ? 3 : 2] || 1)))}
                   </td>
                 </tr>
               )}
@@ -562,7 +562,7 @@ export default function WarmapPreview({ data }) {
                   ~{metrics.highTicketSales}
                 </td>
                 <td className="p-3 text-center font-semibold text-green-600">
-                  {formatIndianNumber(Math.round(metrics.costPerCustomer_current || 0))}
+                  {formatIndianNumber(Math.round(monthlySpend / (metrics.highTicketSales || 1)))}
                 </td>
               </tr>
             </tbody>
