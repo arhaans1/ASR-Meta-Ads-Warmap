@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { getWarmap, deleteWarmap } from '../lib/supabase'
-import { downloadWarmap } from '../lib/docxGenerator'
+import { downloadPDF } from '../lib/pdfGenerator'
 import WarmapPreview from '../components/WarmapPreview'
 
 export default function ViewWarmap() {
@@ -31,12 +31,12 @@ export default function ViewWarmap() {
   const handleDownload = async () => {
     setDownloading(true)
     try {
-      const result = await downloadWarmap(warmap)
+      const result = await downloadPDF(warmap)
       if (!result.success) {
-        alert('Error generating document: ' + result.error)
+        alert('Error generating PDF: ' + result.error)
       }
     } catch (err) {
-      alert('Error generating document: ' + err.message)
+      alert('Error generating PDF: ' + err.message)
     }
     setDownloading(false)
   }
@@ -115,7 +115,7 @@ export default function ViewWarmap() {
                     d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                   />
                 </svg>
-                Download .docx
+                Download PDF
               </>
             )}
           </button>
