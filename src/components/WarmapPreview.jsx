@@ -443,20 +443,163 @@ export default function WarmapPreview({ data }) {
           </table>
         </div>
 
-        {/* Revenue Math */}
+        {/* Revenue Math - Stage by Stage Breakdown */}
         <h3 className="font-semibold text-green-600 mb-3">Revenue Math (at Kill Range CPA)</h3>
-        <div className="bg-gray-50 p-4 rounded-lg mb-6 text-sm space-y-2">
-          <p>
-            <span className="text-gray-600">Monthly Ad Spend:</span>{' '}
-            {formatIndianNumber(data.target_daily_spend)} × 30 = <span className="font-semibold text-blue-600">{formatIndianNumber(monthlySpend)}</span>
+
+        {/* Stage-by-Stage Funnel Breakdown Table */}
+        <div className="overflow-x-auto mb-6">
+          <table className="w-full text-sm border border-gray-200">
+            <thead>
+              <tr className="bg-green-700 text-white">
+                <th className="text-left p-3 font-medium">STAGE</th>
+                <th className="text-center p-3 font-medium">CALCULATION</th>
+                <th className="text-center p-3 font-medium">VOLUME</th>
+                <th className="text-center p-3 font-medium">COST/UNIT</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {/* Ad Spend */}
+              <tr className="bg-blue-50">
+                <td className="p-3 font-semibold text-blue-700">
+                  <span className="inline-block w-6 h-6 bg-blue-600 text-white text-xs rounded-full text-center leading-6 mr-2">1</span>
+                  Monthly Ad Spend
+                </td>
+                <td className="p-3 text-center">
+                  {formatIndianNumber(data.target_daily_spend)} × 30 days
+                </td>
+                <td className="p-3 text-center font-bold text-blue-600">
+                  {formatIndianNumber(monthlySpend)}
+                </td>
+                <td className="p-3 text-center text-gray-500">—</td>
+              </tr>
+
+              {/* Registrations/Opt-ins */}
+              <tr className="bg-gray-50">
+                <td className="p-3 font-semibold text-gray-700">
+                  <span className="inline-block w-6 h-6 bg-gray-600 text-white text-xs rounded-full text-center leading-6 mr-2">2</span>
+                  {stages[0]?.name || 'Registrations'}
+                </td>
+                <td className="p-3 text-center">
+                  {formatIndianNumber(monthlySpend)} ÷ {formatIndianNumber(data.cpa_stage1_kill_range)}
+                </td>
+                <td className="p-3 text-center font-bold text-blue-600">
+                  {registrations.toLocaleString()}
+                </td>
+                <td className="p-3 text-center">
+                  {formatIndianNumber(data.cpa_stage1_kill_range)}
+                </td>
+              </tr>
+
+              {/* Stage 2 */}
+              <tr>
+                <td className="p-3 font-semibold text-gray-700">
+                  <span className="inline-block w-6 h-6 bg-gray-600 text-white text-xs rounded-full text-center leading-6 mr-2">3</span>
+                  {stages[1]?.name || 'Stage 2'}
+                </td>
+                <td className="p-3 text-center">
+                  {registrations.toLocaleString()} × {data.stage2_conversion_rate}%
+                </td>
+                <td className="p-3 text-center font-bold text-blue-600">
+                  {Math.round(metrics.volumes[1] || 0).toLocaleString()}
+                </td>
+                <td className="p-3 text-center">
+                  {formatIndianNumber(Math.round(metrics.cpasAtCurrentCPA[0] || 0))}
+                </td>
+              </tr>
+
+              {/* Stage 3 (if enabled) */}
+              {data.stage3_enabled && (
+                <tr className="bg-gray-50">
+                  <td className="p-3 font-semibold text-gray-700">
+                    <span className="inline-block w-6 h-6 bg-gray-600 text-white text-xs rounded-full text-center leading-6 mr-2">4</span>
+                    {stages[2]?.name || 'Stage 3'}
+                  </td>
+                  <td className="p-3 text-center">
+                    {Math.round(metrics.volumes[1] || 0).toLocaleString()} × {data.stage3_conversion_rate}%
+                  </td>
+                  <td className="p-3 text-center font-bold text-blue-600">
+                    {Math.round(metrics.volumes[2] || 0).toLocaleString()}
+                  </td>
+                  <td className="p-3 text-center">
+                    {formatIndianNumber(Math.round(metrics.cpasAtCurrentCPA[1] || 0))}
+                  </td>
+                </tr>
+              )}
+
+              {/* Stage 4 (if enabled) */}
+              {data.stage4_enabled && (
+                <tr className={data.stage3_enabled ? '' : 'bg-gray-50'}>
+                  <td className="p-3 font-semibold text-gray-700">
+                    <span className="inline-block w-6 h-6 bg-gray-600 text-white text-xs rounded-full text-center leading-6 mr-2">{data.stage3_enabled ? '5' : '4'}</span>
+                    {stages[data.stage3_enabled ? 3 : 2]?.name || 'Stage 4'}
+                  </td>
+                  <td className="p-3 text-center">
+                    {Math.round(metrics.volumes[data.stage3_enabled ? 2 : 1] || 0).toLocaleString()} × {data.stage4_conversion_rate}%
+                  </td>
+                  <td className="p-3 text-center font-bold text-blue-600">
+                    {Math.round(metrics.volumes[data.stage3_enabled ? 3 : 2] || 0).toLocaleString()}
+                  </td>
+                  <td className="p-3 text-center">
+                    {formatIndianNumber(Math.round(metrics.cpasAtCurrentCPA[data.stage3_enabled ? 2 : 1] || 0))}
+                  </td>
+                </tr>
+              )}
+
+              {/* High Ticket Closed */}
+              <tr className="bg-green-50 border-t-2 border-green-500">
+                <td className="p-3 font-bold text-green-700">
+                  <span className="inline-block w-6 h-6 bg-green-600 text-white text-xs rounded-full text-center leading-6 mr-2">✓</span>
+                  High Ticket Closed
+                </td>
+                <td className="p-3 text-center">
+                  {(() => {
+                    const lastStageIndex = stages.length - 2
+                    const prevVolume = Math.round(metrics.volumes[lastStageIndex] || 0)
+                    return `${prevVolume.toLocaleString()} × ${data.high_ticket_conversion_rate}%`
+                  })()}
+                </td>
+                <td className="p-3 text-center font-bold text-green-600 text-lg">
+                  ~{metrics.highTicketSales}
+                </td>
+                <td className="p-3 text-center font-semibold text-green-600">
+                  {formatIndianNumber(Math.round(metrics.costPerCustomer_current || 0))}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Summary Formula */}
+        <div className="bg-gray-100 p-4 rounded-lg mb-6">
+          <p className="text-sm text-gray-600 mb-2">
+            <span className="font-semibold">Full Conversion Path:</span>
           </p>
-          <p>
-            <span className="text-gray-600">Registrations:</span>{' '}
-            {formatIndianNumber(monthlySpend)} / {formatIndianNumber(data.cpa_stage1_kill_range)} = <span className="font-semibold text-blue-600">{registrations}</span>
-          </p>
-          <p>
-            <span className="text-gray-600">High Ticket Sales:</span>{' '}
-            {registrations} × {data.stage2_conversion_rate}% {data.stage3_enabled ? `× ${data.stage3_conversion_rate}% ` : ''}{data.stage4_enabled ? `× ${data.stage4_conversion_rate}% ` : ''}× {data.high_ticket_conversion_rate}% = <span className="font-semibold text-green-600">~{metrics.highTicketSales}</span>
+          <p className="text-sm font-mono bg-white p-3 rounded border">
+            {registrations.toLocaleString()} {stages[0]?.name || 'Registrations'}
+            <span className="text-blue-500"> → </span>
+            {data.stage2_conversion_rate}%
+            <span className="text-blue-500"> → </span>
+            {Math.round(metrics.volumes[1] || 0).toLocaleString()} {stages[1]?.name || 'Stage 2'}
+            {data.stage3_enabled && (
+              <>
+                <span className="text-blue-500"> → </span>
+                {data.stage3_conversion_rate}%
+                <span className="text-blue-500"> → </span>
+                {Math.round(metrics.volumes[2] || 0).toLocaleString()} {stages[2]?.name}
+              </>
+            )}
+            {data.stage4_enabled && (
+              <>
+                <span className="text-blue-500"> → </span>
+                {data.stage4_conversion_rate}%
+                <span className="text-blue-500"> → </span>
+                {Math.round(metrics.volumes[data.stage3_enabled ? 3 : 2] || 0).toLocaleString()} {stages[data.stage3_enabled ? 3 : 2]?.name}
+              </>
+            )}
+            <span className="text-blue-500"> → </span>
+            {data.high_ticket_conversion_rate}%
+            <span className="text-blue-500"> → </span>
+            <span className="text-green-600 font-bold">~{metrics.highTicketSales} High Ticket Sales</span>
           </p>
         </div>
 
